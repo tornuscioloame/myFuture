@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — MyFuture{% endblock %}
+
+{% block body %}
+<div class="dashboard-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">✦</span>
+      <span class="logo-text">myFuture</span>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ user.name[0].upper() }}</div>
+      <div>
+        <p class="user-name">{{ user.name }}</p>
+        <p class="user-role">Studente</p>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="#profilo" class="nav-item active">Il mio profilo</a>
+      <a href="#match" class="nav-item">I miei Match</a>
+      <a href="{{ url_for('student.chat') }}" class="nav-item">Parla con Mya</a>
+    </nav>
+
+    <!-- Mini live indicator -->
+    <div class="sidebar-live" id="liveIndicator">
+      <span class="live-dot"></span>
+      <span class="live-label">Profilo aggiornato</span>
+    </div>
+
+    <a href="{{ url_for('auth.logout') }}" class="sidebar-logout">Logout</a>
+  </aside>
+
+  <!-- Main content -->
+  <main class="dashboard-main">
+
+    <!-- Header -->
+    <div class="dash-header">
+      <div>
+        <h1>Ciao, <span class="highlight" id="dashName">{{ user.name.split()[0] }}</span></h1>
+        <p>Ecco cosa abbiamo scoperto su di te. <span class="dash-live-tag" id="dashLiveTag">🔄 Live</span></p>
+      </div>
+      <div class="dash-badge">Profilo completato</div>
+    </div>
+
+    <!-- Toast aggiornamento profilo -->
+    <div class="dash-update-toast" id="dashToast" role="status">
+      <span>✦</span> Mya ha aggiornato il tuo profilo in base alla conversazione!
+      <a href="{{ url_for('student.chat') }}" class="dash-toast-link">Torna alla chat →</a>
+    </div>
+
+    <!-- Obiettivo utente -->
+    {% if user.goal %}
+    <div class="goal-banner goal-banner--{{ user.goal }}" id="goalBanner">
+      {% if user.goal == 'universita' %}
+        Stai cercando: <strong>Università triennale</strong>
+      {% elif user.goal == 'magistrale' %}
+        Stai cercando: <strong>Laurea magistrale</strong>
+      {% else %}
+        Stai cercando: <strong>Opportunità di lavoro</strong>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Skills section -->
+    <section class="dash-section" id="profilo">
+      <h2 class="section-title">Le tue Soft Skills</h2>
+      <p class="section-sub">Basato sulle conversazioni con Mya · si aggiorna in tempo reale</p>
+
+      <div class="skills-grid" id="skillsGrid">
+        {% for skill, score in user.skills_profile.get('skills', {}).items() %}
+        <div class="skill-card" data-skill="{{ skill }}">
+          <div class="skill-header">
+            <span class="skill-name">{{ skill }}</span>
+            <span class="skill-score" id="score-{{ loop.index }}">{{ score }}%</span>
+          </div>
+          <div class="skill-bar-bg">
+            <div class="skill-bar-fill"
+                 style="width: {{ score }}%; background: {{ 'var(--accent-coral)' if score >= 85 else 'var(--accent-purple)' if score >= 70 else 'var(--accent-blue)' }};"
+                 data-width="{{ score }}"
+                 id="bar-{{ loop.index }}">
+            </div>
+          </div>
+          <p class="skill-tag" id="tag-{{ loop.index }}">
+            {% if score >= 85 %}Punto di forza
+            {% elif score >= 70 %}Buono
+            {% else %}Da sviluppare
+            {% endif %}
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <!-- Matches section -->
+    <section class="dash-section" id="match">
+      <h2 class="section-title">I tuoi Match</h2>
+      <p class="section-sub">Opportunità selezionate appositamente per te dall'IA</p>
+
+      <div class="matches-list" id="matchesList">
+        {% for match in user.skills_profile.get('matches', []) %}
+        <div class="match-card match-card--{{ match.type }}" data-match="{{ match.name }}">
+          <div class="match-score-ring">
+            <svg viewBox="0 0 64 64" class="ring-svg">
+              <circle cx="32" cy="32" r="28" class="ring-bg"/>
+              <circle cx="32" cy="32" r="28" class="ring-fill"
+                style="stroke-dasharray: {{ (match.score / 100) * 175.9 }} 175.9;"/>
+            </svg>
+            <span class="ring-num">{{ match.score }}%</span>
+          </div>
+
+          <div class="match-info">
+            <span class="match-type-badge">
+              {% if match.type == 'magistrale' %}Magistrale
+              {% elif match.type == 'universita' %}Universita
+              {% else %}Lavoro
+              {% endif %}
+            </span>
+            <h3>{{ match.name }}</h3>
+            <p>
+              {% if match.type in ['magistrale', 'universita'] %}
+                {{ match.university }}
+              {% else %}
+                {{ match.company }}
+              {% endif %}
+            </p>
+          </div>
+
+          <button class="btn-unlock">
+            {% if match.score >= 90 %}Sblocca contatto{% else %}Scopri di piu{% endif %}
+          </button>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <div class="dash-cta">
+      <p>Vuoi continuare la conversazione o esplorare dubbi sul tuo percorso?</p>
+      <a href="{{ url_for('student.chat') }}" class="btn-secondary">Apri la chat con Mya</a>
+    </div>
+
+  </main>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ── Animazione iniziale barre ────────────────────────────────────────
+  const fills = document.querySelectorAll('.skill-bar-fill');
+  fills.forEach((el, i) => {
+    const target = el.dataset.width + '%';
+    el.style.width = '0%';
+    setTimeout(() => {
+      el.style.transition = 'width 0.8s ease';
+      el.style.width = target;
+    }, 200 + i * 120);
+  });
+
+  // ── Polling live dati profilo ogni 8 secondi ─────────────────────────
+  const skillCards = {};
+  document.querySelectorAll('.skill-card[data-skill]').forEach((card, i) => {
+    skillCards[card.dataset.skill] = i + 1; // indice 1-based
+  });
+
+  const dashToast = document.getElementById('dashToast');
+  const liveIndicator = document.getElementById('liveIndicator');
+  let lastSkillsHash = JSON.stringify(
+    Array.from(document.querySelectorAll('.skill-score')).map(e => e.textContent)
+  );
+
+  function getSkillColor(score) {
+    if (score >= 85) return 'var(--accent-coral)';
+    if (score >= 70) return 'var(--accent-purple)';
+    return 'var(--accent-blue)';
+  }
+  function getSkillTag(score) {
+    if (score >= 85) return 'Punto di forza';
+    if (score >= 70) return 'Buono';
+    return 'Da sviluppare';
+  }
+
+  function updateSkills(skills) {
+    let changed = false;
+    Object.entries(skills).forEach(([skill, score]) => {
+      const idx = skillCards[skill];
+      if (!idx) return;
+      const scoreEl = document.getElementById('score-' + idx);
+      const barEl = document.getElementById('bar-' + idx);
+      const tagEl = document.getElementById('tag-' + idx);
+      if (!scoreEl) return;
+      const current = parseInt(scoreEl.textContent);
+      if (current !== score) {
+        changed = true;
+        scoreEl.textContent = score + '%';
+        if (barEl) {
+          barEl.style.transition = 'width 1s ease, background 0.5s ease';
+          barEl.style.width = score + '%';
+          barEl.style.background = getSkillColor(score);
+          barEl.dataset.width = score;
+        }
+        if (tagEl) tagEl.textContent = getSkillTag(score);
+        // Flash animazione sulla card
+        const card = scoreEl.closest('.skill-card');
+        if (card) {
+          card.classList.add('skill-card--updated');
+          setTimeout(() => card.classList.remove('skill-card--updated'), 1500);
+        }
+      }
+    });
+    return changed;
+  }
+
+  function showDashToast() {
+    dashToast.classList.add('dash-update-toast--visible');
+    liveIndicator.classList.add('sidebar-live--active');
+    setTimeout(() => {
+      dashToast.classList.remove('dash-update-toast--visible');
+    }, 5000);
+    setTimeout(() => {
+      liveIndicator.classList.remove('sidebar-live--active');
+    }, 3000);
+  }
+
+  async function pollDashboard() {
+    try {
+      const res = await fetch('/student/api/dashboard');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.error) return;
+      const changed = updateSkills(data.skills || {});
+      if (changed) showDashToast();
+    } catch (e) {
+      // silenzioso
+    }
+  }
+
+  // Prima chiamata dopo 2s, poi ogni 8s
+  setTimeout(pollDashboard, 2000);
+  setInterval(pollDashboard, 8000);
+});
+</script>
+{% endblock %}

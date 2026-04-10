@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Login — MyFuture{% endblock %}
+
+{% block body %}
+<div class="auth-layout">
+
+  <!-- LEFT PANEL: branding -->
+  <div class="auth-brand">
+    <div class="brand-orb brand-orb--1"></div>
+    <div class="brand-orb brand-orb--2"></div>
+    <div class="brand-orb brand-orb--3"></div>
+
+    <div class="brand-content">
+      <div class="logo">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">myFuture</span>
+      </div>
+
+      <h1 class="brand-headline">
+        Il tuo futuro<br>
+        <em>inizia</em><br>
+        da qui.
+      </h1>
+
+      <p class="brand-sub">
+        Scopri dove ti portano le tue vere attitudini.<br>
+        Niente CV vuoti. Solo te stesso/a.
+      </p>
+
+      <div class="brand-stats">
+        <div class="stat">
+          <span class="stat-num">4.200+</span>
+          <span class="stat-label">Studenti profilati</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">320+</span>
+          <span class="stat-label">Aziende partner</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num">92%</span>
+          <span class="stat-label">Match accuracy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: form -->
+  <div class="auth-form-panel">
+    <div class="auth-card">
+      <div class="auth-card__header">
+        <h2>Bentornato/a</h2>
+        <p>Accedi al tuo profilo MyFuture</p>
+      </div>
+
+      <!-- Role switcher -->
+      <div class="role-switcher">
+        <button class="role-btn active" data-role="student" onclick="setRole('student', this)">
+          🎓 Studente
+        </button>
+        <button class="role-btn" data-role="company" onclick="setRole('company', this)">
+          🏢 Azienda
+        </button>
+      </div>
+
+      <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form" id="loginForm">
+        <input type="hidden" name="role" id="roleInput" value="student">
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="tuamail@esempio.com" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-password-wrap">
+            <input type="password" id="password" name="password" placeholder="••••••••" required>
+            <button type="button" class="toggle-pw" onclick="togglePw()">👁</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary btn-full">
+          <span>Accedi</span>
+          <span class="btn-arrow">→</span>
+        </button>
+
+        <label class="remember-me">
+          <input type="checkbox" name="remember" checked>
+          <span>Rimani connesso per 30 giorni</span>
+        </label>
+      </form>
+
+      <div class="auth-divider"><span>oppure</span></div>
+
+      <p class="auth-switch">
+        Non hai un account?
+        <a href="{{ url_for('auth.register') }}">Registrati gratis →</a>
+      </p>
+
+      <!-- Demo shortcut -->
+      <div class="demo-hint">
+        <span>🚀 Demo rapida:</span>
+        <button onclick="fillDemo()">Usa account demo studente</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function setRole(role, btn) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('roleInput').value = role;
+}
+
+function togglePw() {
+  const pw = document.getElementById('password');
+  pw.type = pw.type === 'password' ? 'text' : 'password';
+}
+
+function fillDemo() {
+  document.getElementById('email').value = 'demo@myfuture.it';
+  document.getElementById('password').value = 'demo123';
+  // Crea account demo se non esiste (via fetch a register)
+  fetch('/auth/register', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'name=Demo+Studente&email=demo%40myfuture.it&password=demo123&confirm_password=demo123&role=student'
+  }).finally(() => document.getElementById('loginForm').submit());
+}
+</script>
+{% endblock %}

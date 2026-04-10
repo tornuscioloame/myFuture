@@ -1,0 +1,133 @@
+[
+  {
+    "id": "ob1",
+    "phase": "Informazioni",
+    "type": "onboarding_text",
+    "field": "age",
+    "text": "Quanti anni hai?",
+    "hint": "Inserisci la tua età.",
+    "placeholder": "Es. 21",
+    "input_type": "number"
+  },
+  {
+    "id": "ob2",
+    "phase": "Informazioni",
+    "type": "onboarding_text",
+    "field": "education",
+    "text": "Qual è il tuo titolo di studio attuale?",
+    "hint": "Scrivi liberamente, es. 'Laurea triennale in Economia', 'Diploma scientifico', ecc.",
+    "placeholder": "Es. Laurea triennale in Ingegneria Informatica",
+    "input_type": "text"
+  },
+  {
+    "id": "ob3",
+    "phase": "Informazioni",
+    "type": "onboarding_goal",
+    "field": "goal",
+    "text": "Cosa stai cercando?",
+    "hint": "Seleziona l'opzione che ti descrive meglio. Questo personalizza i tuoi match.",
+    "options": [
+      { "key": "universita", "label": "Università", "desc": "Voglio scegliere una triennale" },
+      { "key": "magistrale", "label": "Magistrale", "desc": "Ho già una triennale e cerco il passo successivo" },
+      { "key": "lavoro",     "label": "Lavoro",     "desc": "Voglio entrare nel mondo del lavoro" }
+    ]
+  },
+  {
+    "id": 1,
+    "phase": "Rompighiaccio",
+    "type": "multiple_choice",
+    "text": "Ti viene assegnato un progetto nuovo di cui non sai nulla. Qual è la tua prima reazione?",
+    "hint": "Scegli la risposta che ti descrive meglio.",
+    "skill_target": "adaptability",
+    "options": [
+      { "key": "A", "text": "Cerco subito informazioni e studio il contesto da solo" },
+      { "key": "B", "text": "Chiedo a qualcuno di esperto per capire da dove partire" },
+      { "key": "C", "text": "Mi fermo a ragionare e costruisco un piano prima di agire" },
+      { "key": "D", "text": "Mi lancio direttamente e imparo facendo" }
+    ]
+  },
+  {
+    "id": 2,
+    "phase": "Problem Solving",
+    "type": "multiple_choice",
+    "text": "Sei in un team e a 3 giorni dalla consegna due persone non hanno fatto la loro parte. Cosa fai?",
+    "hint": "Pensa a come ti comporteresti concretamente.",
+    "skill_target": "problem_solving",
+    "options": [
+      { "key": "A", "text": "Affronto direttamente i due e chiedo spiegazioni" },
+      { "key": "B", "text": "Riorganizzo il lavoro rimanente tra chi è attivo" },
+      { "key": "C", "text": "Faccio io stesso la parte mancante per non rischiare" },
+      { "key": "D", "text": "Segnalo il problema a chi gestisce il progetto" }
+    ]
+  },
+  {
+    "id": 3,
+    "phase": "Creatività",
+    "type": "multiple_choice",
+    "text": "Devi proporre un'idea innovativa per migliorare l'esperienza degli studenti. Da dove inizi?",
+    "hint": "Scegli il tuo approccio naturale.",
+    "skill_target": "creativity",
+    "options": [
+      { "key": "A", "text": "Osservo i problemi quotidiani e cerco soluzioni pratiche" },
+      { "key": "B", "text": "Studio come lo fanno le migliori realtà al mondo" },
+      { "key": "C", "text": "Faccio un brainstorming senza limiti, anche le idee più assurde" },
+      { "key": "D", "text": "Intervisto direttamente le persone per capire cosa vogliono" }
+    ]
+  },
+  {
+    "id": 4,
+    "phase": "Teamwork",
+    "type": "multiple_choice",
+    "text": "Stai lavorando con qualcuno che ha un approccio completamente diverso dal tuo. Come gestisci la situazione?",
+    "hint": "Sii onesto su come ti comporteresti davvero.",
+    "skill_target": "teamwork",
+    "options": [
+      { "key": "A", "text": "Propongo di testare entrambi gli approcci e poi valutiamo" },
+      { "key": "B", "text": "Ascolto le sue ragioni prima di difendere le mie" },
+      { "key": "C", "text": "Cerco un compromesso che prenda il meglio di entrambe le idee" },
+      { "key": "D", "text": "Se sono convinto di avere ragione, argomento con dati e fatti" }
+    ]
+  },
+  {
+    "id": 5,
+    "phase": "Motivazione",
+    "type": "multiple_choice",
+    "text": "In quale situazione dai il meglio di te?",
+    "hint": "Pensa ai momenti in cui ti sei sentito più produttivo ed energico.",
+    "skill_target": "self_awareness",
+    "options": [
+      { "key": "A", "text": "Quando ho obiettivi chiari e una struttura definita" },
+      { "key": "B", "text": "Quando ho libertà totale di sperimentare e decidere" },
+      { "key": "C", "text": "Quando lavoro a stretto contatto con un team affiatato" },
+      { "key": "D", "text": "Quando c'è una sfida difficile da risolvere sotto pressione" }
+    ]
+  },
+  {
+    "id": 6,
+    "phase": "Leadership",
+    "type": "multiple_choice",
+    "text": "Nel tuo gruppo nessuno vuole prendere la guida del progetto. Come ti comporti?",
+    "hint": "Descrivi la tua reazione più istintiva.",
+    "skill_target": "leadership",
+    "options": [
+      { "key": "A", "text": "Mi offro volontario: preferisco guidare che aspettare" },
+      { "key": "B", "text": "Propongo di assegnare la guida a chi ha più esperienza" },
+      { "key": "C", "text": "Suggerisco di dividerci i ruoli senza un leader unico" },
+      { "key": "D", "text": "Aspetto che emerga qualcuno naturalmente, senza forzare" }
+    ]
+  },
+  {
+    "id": 7,
+    "phase": "Visione",
+    "type": "multiple_choice",
+    "text": "Tra 5 anni, quale scenario ti renderebbe più soddisfatto?",
+    "hint": "Non pensare a cosa è realistico, pensa a cosa ti farebbe sentire nel posto giusto.",
+    "skill_target": "vision",
+    "options": [
+      { "key": "A", "text": "Avere una posizione di responsabilità in un'azienda strutturata" },
+      { "key": "B", "text": "Aver lanciato un mio progetto o una mia startup" },
+      { "key": "C", "text": "Essere uno specialista riconosciuto nel mio campo" },
+      { "key": "D", "text": "Lavorare in un contesto internazionale su progetti ad alto impatto" }
+    ]
+  }
+]

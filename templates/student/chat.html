@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}Mya — MyFuture{% endblock %}
+
+{% block body %}
+<div class="chat-layout">
+
+  <nav class="chat-nav">
+    <div class="chat-nav__brand">
+      <div class="logo">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">myFuture</span>
+      </div>
+      <span class="chat-nav__tag">Chat con Mya</span>
+    </div>
+    <div class="chat-nav__actions">
+      {% if user.profile_done %}
+      <a href="{{ url_for('student.dashboard') }}" class="btn-nav-dash" id="dashLink">La mia dashboard</a>
+      {% endif %}
+      <a href="{{ url_for('auth.logout') }}" class="nav-exit">Esci</a>
+    </div>
+  </nav>
+
+  <!-- Toast notifica aggiornamento profilo -->
+  <div class="profile-toast" id="profileToast" aria-live="assertive" role="status">
+    <span class="profile-toast__icon">✦</span>
+    <span class="profile-toast__text">Profilo aggiornato in base alla tua risposta!</span>
+    <a href="{{ url_for('student.dashboard') }}" class="profile-toast__link">Vedi dashboard →</a>
+  </div>
+
+  <main class="chat-main">
+    <aside class="chat-aside">
+      <div class="chat-aside__card">
+        <div class="chat-aside__header">
+          <h2>Mya</h2>
+          {% if gemini_active %}
+          <span class="ai-badge ai-badge--on" title="Google Gemini attivo">✦ AI</span>
+          {% else %}
+          <span class="ai-badge ai-badge--off" title="Modalità demo — aggiungi GEMINI_API_KEY">Demo</span>
+          {% endif %}
+        </div>
+        <p class="chat-aside__desc">
+          La fase conoscitiva avviene qui, in conversazione: niente elenco di domande in fondo al percorso.
+          Puoi tornare in questa pagina quando vuoi per continuare a chattare con me.
+        </p>
+        {% if not user.profile_done %}
+        <p class="chat-aside__hint">Completa i passaggi iniziali (età, titolo di studio, obiettivo) per sbloccare il profilo e i match.</p>
+        {% else %}
+        <p class="chat-aside__hint chat-aside__hint--ok" id="profileHint">Profilo attivo. Continua a scrivermi: le tue risposte migliorano il tuo profilo in tempo reale.</p>
+        <div class="chat-aside__skills" id="asideSkills">
+          {% for skill, score in user.skills_profile.get('skills', {}).items() %}
+          <div class="aside-skill" data-skill="{{ skill }}">
+            <div class="aside-skill__header">
+              <span class="aside-skill__name">{{ skill }}</span>
+              <span class="aside-skill__score" id="aside-score-{{ loop.index }}">{{ score }}%</span>
+            </div>
+            <div class="aside-skill__bar-bg">
+              <div class="aside-skill__bar-fill" style="width: {{ score }}%" id="aside-bar-{{ loop.index }}"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </aside>
+
+    <section class="chat-panel">
+      <div class="chat-messages" id="chatMessages" aria-live="polite">
+        {% for msg in messages %}
+        <div class="chat-bubble chat-bubble--{{ msg.role }}">
+          {% if msg.role == 'mya' %}
+          <span class="chat-bubble__avatar" aria-hidden="true">M</span>
+          {% endif %}
+          <div class="chat-bubble__inner">
+            {% if msg.role == 'mya' %}<span class="chat-bubble__name">Mya</span>{% endif %}
+            <p class="chat-bubble__text">{{ msg.text }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Typing indicator -->
+      <div class="typing-indicator" id="typingIndicator" aria-label="Mya sta scrivendo">
+        <span class="chat-bubble__avatar" aria-hidden="true">M</span>
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="chat-quick-replies {% if onboarding_step == 3 %}chat-quick-replies--visible{% endif %}" id="goalReplies" role="group" aria-label="Scegli il tuo obiettivo">
+        <span class="chat-quick-replies__label">Obiettivo</span>
+        <div class="chat-quick-replies__row">
+          <button type="button" class="goal-chip goal-chip--uni" data-goal="universita">Università</button>
+          <button type="button" class="goal-chip goal-chip--mag" data-goal="magistrale">Magistrale</button>
+          <button type="button" class="goal-chip goal-chip--job" data-goal="lavoro">Lavoro</button>
+        </div>
+      </div>
+
+      <form class="chat-compose" id="chatForm" autocomplete="off">
+        <label class="visually-hidden" for="chatInput">Messaggio</label>
+        <input type="text" id="chatInput" class="chat-compose__input" placeholder="Scrivi un messaggio…" maxlength="2000" {% if onboarding_step == 3 %}disabled{% endif %}>
+        <button type="submit" class="btn-primary chat-compose__send" id="btnSend" {% if onboarding_step == 3 %}disabled{% endif %}>Invia</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<script>
+(function() {
+  const form = document.getElementById('chatForm');
+  const input = document.getElementById('chatInput');
+  const btnSend = document.getElementById('btnSend');
+  const box = document.getElementById('chatMessages');
+  const goalReplies = document.getElementById('goalReplies');
+  const typingIndicator = document.getElementById('typingIndicator');
+  const profileToast = document.getElementById('profileToast');
+  let onboardingStep = {{ (onboarding_step or 0) | int }};
+  let profileDone = {{ user.profile_done | tojson }};
+
+  // Mappa skill → indice per aggiornare i mini-bar
+  const skillIndexMap = {};
+  {% for skill, score in user.skills_profile.get('skills', {}).items() %}
+  skillIndexMap['{{ skill }}'] = {{ loop.index }};
+  {% endfor %}
+
+  function scrollBottom() {
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function showTyping() {
+    typingIndicator.classList.add('typing-indicator--visible');
+    scrollBottom();
+  }
+
+  function hideTyping() {
+    typingIndicator.classList.remove('typing-indicator--visible');
+  }
+
+  function showToast() {
+    profileToast.classList.add('profile-toast--visible');
+    setTimeout(() => profileToast.classList.remove('profile-toast--visible'), 4000);
+  }
+
+  function appendBubble(role, text) {
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-bubble chat-bubble--' + role;
+    const inner = document.createElement('div');
+    inner.className = 'chat-bubble__inner';
+    if (role === 'mya') {
+      const av = document.createElement('span');
+      av.className = 'chat-bubble__avatar';
+      av.setAttribute('aria-hidden', 'true');
+      av.textContent = 'M';
+      wrap.appendChild(av);
+      const name = document.createElement('span');
+      name.className = 'chat-bubble__name';
+      name.textContent = 'Mya';
+      inner.appendChild(name);
+    }
+    const p = document.createElement('p');
+    p.className = 'chat-bubble__text';
+    p.textContent = text;
+    inner.appendChild(p);
+    wrap.appendChild(inner);
+    box.appendChild(wrap);
+    scrollBottom();
+  }
+
+  function setGoalVisible(show) {
+    goalReplies.classList.toggle('chat-quick-replies--visible', show);
+    input.disabled = show;
+    btnSend.disabled = show;
+  }
+
+  function updateAsideSkills(skills) {
+    if (!skills) return;
+    Object.entries(skills).forEach(([skill, score]) => {
+      const idx = skillIndexMap[skill];
+      if (!idx) return;
+      const scoreEl = document.getElementById('aside-score-' + idx);
+      const barEl = document.getElementById('aside-bar-' + idx);
+      if (scoreEl) scoreEl.textContent = score + '%';
+      if (barEl) {
+        barEl.style.transition = 'width 0.8s ease';
+        barEl.style.width = score + '%';
+      }
+    });
+  }
+
+  function applyState(data) {
+    if (typeof data.onboarding_step === 'number') onboardingStep = data.onboarding_step;
+    if (data.profile_done) profileDone = true;
+    setGoalVisible(onboardingStep === 3 && !profileDone);
+    box.innerHTML = '';
+    data.messages.forEach(function(m) {
+      appendBubble(m.role, m.text);
+    });
+    if (profileDone) {
+      const nav = document.querySelector('.chat-nav__actions');
+      if (nav && !nav.querySelector('.btn-nav-dash')) {
+        const a = document.createElement('a');
+        a.href = '/student/dashboard';
+        a.className = 'btn-nav-dash';
+        a.id = 'dashLink';
+        a.textContent = 'La mia dashboard';
+        nav.insertBefore(a, nav.firstChild);
+      }
+    }
+    // Aggiorna skills nella sidebar
+    if (data.profile_updated && data.skills) {
+      updateAsideSkills(data.skills);
+      showToast();
+    }
+  }
+
+  async function sendMessage(payload) {
+    // Mostra il messaggio utente immediatamente
+    if (payload.text) appendBubble('user', payload.text);
+    input.value = '';
+    btnSend.disabled = true;
+    // Typing indicator con ritardo finto (realismo)
+    showTyping();
+    await new Promise(r => setTimeout(r, 900 + Math.random() * 700));
+    try {
+      const res = await fetch('/student/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      hideTyping();
+      if (data.error) return;
+      applyState(data);
+    } catch (err) {
+      hideTyping();
+      console.error(err);
+    } finally {
+      btnSend.disabled = false;
+      if (!input.disabled) input.focus();
+    }
+  }
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) return;
+    await sendMessage({ text });
+  });
+
+  document.querySelectorAll('.goal-chip').forEach(function(btn) {
+    btn.addEventListener('click', async function() {
+      const goal = btn.getAttribute('data-goal');
+      setGoalVisible(false);
+      await sendMessage({ goal_key: goal, text: '' });
+      input.disabled = false;
+      btnSend.disabled = false;
+    });
+  });
+
+  scrollBottom();
+  if (!input.disabled) input.focus();
+})();
+</script>
+{% endblock %}
