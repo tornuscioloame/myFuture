@@ -1,10 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Registrati — MyFuture{% endblock %}
+{% block title %}Registrati - MyFuture{% endblock %}
 
 {% block body %}
 <div class="auth-layout">
 
-  <!-- LEFT PANEL -->
   <div class="auth-brand auth-brand--register">
     <div class="brand-orb brand-orb--1"></div>
     <div class="brand-orb brand-orb--2"></div>
@@ -17,15 +16,21 @@
       </div>
 
       <h1 class="brand-headline">
-        Un dialogo<br>
-        <em>con Mya</em><br>
-        sul tuo futuro.
+        Fai chiarezza<br>
+        <em>sul tuo prossimo passo</em><br>
+        in pochi minuti.
       </h1>
 
       <p class="brand-sub">
-        Niente questionari in coda al percorso: una chat con l'IA
-        che ti accompagna e fa emergere le tue attitudini.
+        Una conversazione guidata con Mya per capire meglio cosa ti valorizza,
+        cosa ti blocca e quali percorsi hanno davvero senso per te.
       </p>
+
+      <div class="trust-badges" aria-label="Elementi di fiducia">
+        <span class="trust-badge">Scelto da +4.000 studenti</span>
+        <span class="trust-badge">Percorso guidato in meno di 5 minuti</span>
+        <span class="trust-badge">Suggerimenti personalizzati e immediati</span>
+      </div>
 
       <div class="steps-preview">
         <div class="step-item">
@@ -44,21 +49,19 @@
     </div>
   </div>
 
-  <!-- RIGHT PANEL -->
   <div class="auth-form-panel">
     <div class="auth-card">
       <div class="auth-card__header">
-        <h2>Inizia gratis 🎉</h2>
+        <h2>Inizia gratis</h2>
         <p>Crea il tuo profilo in 30 secondi</p>
       </div>
 
-      <!-- Role switcher -->
       <div class="role-switcher">
         <button class="role-btn active" data-role="student" onclick="setRole('student', this)">
-          🎓 Studente
+          Studente
         </button>
         <button class="role-btn" data-role="company" onclick="setRole('company', this)">
-          🏢 Azienda
+          Azienda
         </button>
       </div>
 
@@ -79,7 +82,7 @@
           <label for="password">Crea una password</label>
           <div class="input-password-wrap">
             <input type="password" id="password" name="password" placeholder="Minimo 6 caratteri" required minlength="6">
-            <button type="button" class="toggle-pw" onclick="togglePw('password')">👁</button>
+            <button type="button" class="toggle-pw" onclick="togglePw('password')" aria-label="Mostra password">Occhio</button>
           </div>
         </div>
 
@@ -87,7 +90,7 @@
           <label for="confirm_password">Conferma password</label>
           <div class="input-password-wrap">
             <input type="password" id="confirm_password" name="confirm_password" placeholder="Ripeti la password" required>
-            <button type="button" class="toggle-pw" onclick="togglePw('confirm_password')">👁</button>
+            <button type="button" class="toggle-pw" onclick="togglePw('confirm_password')" aria-label="Mostra conferma password">Occhio</button>
           </div>
         </div>
 
@@ -100,10 +103,43 @@
         </p>
       </form>
 
-      <div class="auth-divider"><span>già registrato?</span></div>
+      <section class="quick-testimonials" aria-labelledby="quick-testimonials-title">
+        <div class="quick-testimonials__header">
+          <p class="quick-testimonials__eyebrow">Storie lampo</p>
+          <h3 id="quick-testimonials-title">Cosa hanno capito gli studenti dopo l'iscrizione</h3>
+        </div>
+
+        <div class="quick-testimonials__grid">
+          <article class="testimonial-mini">
+            <div class="testimonial-mini__meta">
+              <strong>Sofia R.</strong>
+              <span>19 anni</span>
+            </div>
+            <p>"Mi ha aiutata a capire subito se puntare su universita o lavoro."</p>
+          </article>
+
+          <article class="testimonial-mini">
+            <div class="testimonial-mini__meta">
+              <strong>Luca M.</strong>
+              <span>22 anni</span>
+            </div>
+            <p>"Ho trovato una direzione concreta in meno di 5 minuti."</p>
+          </article>
+
+          <article class="testimonial-mini">
+            <div class="testimonial-mini__meta">
+              <strong>Giulia T.</strong>
+              <span>24 anni</span>
+            </div>
+            <p>"Finalmente qualcuno che mi ha fatto ordine senza giudicarmi."</p>
+          </article>
+        </div>
+      </section>
+
+      <div class="auth-divider"><span>gia registrato?</span></div>
 
       <p class="auth-switch">
-        Hai già un account?
+        Hai gia un account?
         <a href="{{ url_for('auth.login') }}">Accedi →</a>
       </p>
     </div>
