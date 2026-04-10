@@ -47,11 +47,11 @@ MYA_SYSTEM_PROMPT = """Sei Mya, l'assistente IA di orientamento della piattaform
 Il tuo scopo è aiutare gli studenti italiani a capire il loro percorso futuro (università, lavoro, magistrale).
 
 PERSONALITÀ:
-- Sei empatica, diretta e stimolante — non usi frasi fatte o motivazionali vuote
-- Parli in italiano colloquiale ma professionale (non usare gergo giovanile eccessivo)
-- Fai UNA domanda alla volta, non liste di domande
-- Sei curiosa: vai in profondità sulle risposte dell'utente prima di cambiare argomento
-- Non sei mai giudicante, anche di fronte a idee vaghe o apparentemente "impossibili"
+- Sei empatica, amichevole e usi un linguaggio giovane e diretto (es. "che figata", "top", ma senza esagerare).
+- Non usi frasi fatte o motivazionali vuote.
+- Fai UNA domanda alla volta, non liste di domande.
+- Sei curiosa: vai in profondità sulle risposte dell'utente prima di cambiare argomento.
+- Non sei mai giudicante, anche di fronte a idee vaghe o apparentemente "impossibili".
 
 OBIETTIVO DELLA CONVERSAZIONE:
 Attraverso una conversazione fluida, devi capire:
@@ -61,13 +61,13 @@ Attraverso una conversazione fluida, devi capire:
 4. I vincoli pratici (zona geografica, preferenze economiche, situazione familiare se la condivide)
 
 REGOLE:
-- Rispondi sempre in italiano
-- Mantieni il filo della conversazione: fai riferimento a cose dette in precedenza
-- Tieni le risposte brevi: 2-4 frasi massimo
-- Non citare mai che "stai analizzando le sue skill" o che "stai aggiornando il profilo" — fallo in modo invisibile
-- Se l'utente è in dubbio, aiutalo a escludere invece di scegliere
-- Se l'utente parla di qualcosa di specifico (un corso, un'azienda, ecc.), mostra di conoscerlo
-- Non usare asterischi, grassetti o formattazione markdown nelle risposte
+- Rispondi sempre in italiano.
+- Mantieni il filo della conversazione: fai riferimento a cose dette in precedenza.
+- Tieni le risposte brevi: 2-4 frasi massimo.
+- Non citare mai che "stai analizzando le sue skill" o che "stai aggiornando il profilo" — fallo in modo invisibile.
+- Se l'utente è in dubbio, aiutalo a escludere invece di scegliere.
+- Se l'utente parla di qualcosa di specifico (un corso, un'azienda, ecc.), mostra di conoscerlo.
+- Non usare asterischi, grassetti o formattazione markdown nelle risposte.
 """
 
 
@@ -244,8 +244,8 @@ Rispondi ESCLUSIVAMENTE con un JSON valido in questo formato (senza markdown, se
 
 def _ensure_chat_initialized(user):
     """Primo accesso alla chat: messaggio di benvenuto e onboarding."""
-    if user.profile_done and (user.onboarding_step or 0) < 4:
-        user.onboarding_step = 4
+    if user.profile_done and (user.onboarding_step or 0) < 5:
+        user.onboarding_step = 5
     if user.chat_history:
         return
     first = _mya_welcome_first_name()
@@ -258,13 +258,19 @@ def _ensure_chat_initialized(user):
         db.session.commit()
         return
     welcome = (
-        f"Ciao {first}, sono Mya, la tua guida in myFuture. "
-        "Qui non c'è un'intervista con domande a elenco: parliamo come in chat, "
-        "e io ti aiuto a chiarire il tuo percorso.\n\n"
-        "Per personalizzare i tuoi suggerimenti ho bisogno di tre informazioni veloci. "
-        "Per iniziare: quanti anni hai? (scrivi un numero.)"
+        f"Ciao {first}! 👋 Sono Mya, l'assistente IA di myFuture. "
+        "Il mio compito è aiutarti a scoprire quale direzione prendere per il tuo futuro: "
+        "università, magistrale o lavoro, whatever ti interessa di più."
     )
     _append_message(user, 'mya', welcome)
+
+    intro = (
+        "Prima di tutto: niente quiz noiosi. Parliamo, come due amici al bar. "
+        "Tu mi racconti cosa ti piace, come ti vedi lavorando, e io ti aiuto a fare chiarezza. "
+        "Quando sei pronto, dimmi pure da dove vuoi cominciare!"
+    )
+    _append_message(user, 'mya', intro)
+
     user.onboarding_step = 1
     db.session.commit()
 
@@ -437,7 +443,7 @@ def api_chat():
     text = (data.get('text') or '').strip()
 
     # ── Scelta obiettivo (pulsanti rapidi) ────────────────────────────────────
-    if goal_key in GOAL_LABELS and (user.onboarding_step or 0) == 3:
+    if goal_key in GOAL_LABELS and (user.onboarding_step or 0) == 4:
         user.goal = goal_key
         _append_message(user, 'user', f"Il mio obiettivo: {GOAL_LABELS[goal_key]}")
         _append_message(
@@ -446,7 +452,7 @@ def api_chat():
             "Adesso il tuo profilo e solo all'inizio: per sbloccare soft skill e match devo conoscerti meglio. "
             "Continua a parlare con me e il tuo livello di profilazione salira messaggio dopo messaggio.",
         )
-        user.onboarding_step = 4
+        user.onboarding_step = 5
         db.session.commit()
         return jsonify({
             'messages': user.chat_history,
@@ -462,7 +468,7 @@ def api_chat():
     step = user.onboarding_step or 0
 
     # ── Fase libera con Gemini ────────────────────────────────────────────────
-    if step >= 4:
+    if step >= 5:
         _append_message(user, 'user', text)
         mya_reply = _call_ai(user, text)
         _append_message(user, 'mya', mya_reply)
@@ -478,7 +484,7 @@ def api_chat():
         return jsonify({
             'messages': user.chat_history,
             'profile_done': user.profile_done,
-            'onboarding_step': user.onboarding_step or 4,
+            'onboarding_step': user.onboarding_step or 5,
             'profile_updated': profile_updated,
             'profile_completion': _profile_completion(user),
             'messages_to_unlock': _messages_to_unlock(user),
@@ -490,6 +496,14 @@ def api_chat():
 
     # ── Onboarding guidato ────────────────────────────────────────────────────
     if step == 1:
+        _append_message(
+            user, 'mya',
+            "Che figata! 🤩 Per poterti dare suggerimenti davvero su misura, ho bisogno di qualche dettaglio tecnico. "
+            "Per iniziare: quanti anni hai?"
+        )
+        user.onboarding_step = 2
+
+    elif step == 2:
         age = re.sub(r'\D', '', text)[:3]
         if not age:
             _append_message(
@@ -503,18 +517,18 @@ def api_chat():
                 "Grazie! Qual è il tuo titolo di studio attuale? "
                 "(Es. diploma, triennale in corso, ecc.)",
             )
-            user.onboarding_step = 2
+            user.onboarding_step = 3
 
-    elif step == 2:
+    elif step == 3:
         user.education = text[:200]
         _append_message(
             user, 'mya',
             "Ottimo. Ultima cosa per i match: cosa stai cercando adesso? "
             "Scegli uno dei pulsanti sotto la chat (Università, Magistrale o Lavoro).",
         )
-        user.onboarding_step = 3
+        user.onboarding_step = 4
 
-    elif step == 3:
+    elif step == 4:
         _append_message(
             user, 'mya',
             "Per questa scelta usa i tre pulsanti colorati sotto: così aggiorno correttamente i tuoi suggerimenti.",

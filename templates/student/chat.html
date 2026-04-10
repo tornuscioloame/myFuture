@@ -86,7 +86,7 @@
         </div>
       </div>
 
-      <div class="chat-quick-replies {% if onboarding_step == 3 %}chat-quick-replies--visible{% endif %}" id="goalReplies" role="group" aria-label="Scegli il tuo obiettivo">
+      <div class="chat-quick-replies {% if onboarding_step == 4 %}chat-quick-replies--visible{% endif %}" id="goalReplies" role="group" aria-label="Scegli il tuo obiettivo">
         <span class="chat-quick-replies__label">Obiettivo</span>
         <div class="chat-quick-replies__row">
           <button type="button" class="goal-chip goal-chip--uni" data-goal="universita">Università</button>
@@ -97,8 +97,8 @@
 
       <form class="chat-compose" id="chatForm" autocomplete="off">
         <label class="visually-hidden" for="chatInput">Messaggio</label>
-        <input type="text" id="chatInput" class="chat-compose__input" placeholder="Scrivi un messaggio…" maxlength="2000" {% if onboarding_step == 3 %}disabled{% endif %}>
-        <button type="submit" class="btn-primary chat-compose__send" id="btnSend" {% if onboarding_step == 3 %}disabled{% endif %}>Invia</button>
+        <input type="text" id="chatInput" class="chat-compose__input" placeholder="Scrivi un messaggio…" maxlength="2000" {% if onboarding_step == 4 %}disabled{% endif %}>
+        <button type="submit" class="btn-primary chat-compose__send" id="btnSend" {% if onboarding_step == 4 %}disabled{% endif %}>Invia</button>
       </form>
     </section>
   </main>
@@ -189,7 +189,7 @@
   function applyState(data) {
     if (typeof data.onboarding_step === 'number') onboardingStep = data.onboarding_step;
     if (data.profile_done) profileDone = true;
-    setGoalVisible(onboardingStep === 3 && !profileDone);
+    setGoalVisible(onboardingStep === 4 && !profileDone);
     box.innerHTML = '';
     data.messages.forEach(function(m) {
       appendBubble(m.role, m.text);
