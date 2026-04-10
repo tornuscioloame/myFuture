@@ -896,6 +896,32 @@
 
         <!-- =========== TAB DASHBOARD =========== -->
         <div id="tab-dashboard" class="tab-content active">
+            {% if not user.profile_done %}
+            <div class="engine-radar" style="padding: 22px 26px;">
+                <div class="engine-title">Stato del profilo</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+                    <div style="display: flex; flex-direction: column; gap: 10px; min-width: 260px; flex: 1;">
+                        <div id="profile-progress-label" style="font-size: 28px; font-weight: 800; color: #1F2937;">
+                            Profilo al {{ profile_completion }}%
+                        </div>
+                        <div id="profile-progress-copy" style="font-size: 14.5px; line-height: 1.6; color: #6B7280;">
+                            Mya ti conosce ancora poco: continua a parlare con lei per sbloccare soft skill, match e suggerimenti personalizzati.
+                        </div>
+                        <div style="width: 100%; max-width: 420px; background: #f3f4f6; height: 10px; border-radius: 999px; overflow: hidden;">
+                            <div id="profile-progress-bar" style="height: 100%; width: {{ profile_completion }}%; background: linear-gradient(90deg, #7C3AED, #06b6d4); border-radius: 999px; transition: width 0.35s ease;"></div>
+                        </div>
+                    </div>
+                    <div style="min-width: 220px; padding: 18px 20px; border-radius: 20px; background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(6,182,212,0.08));">
+                        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: #7C3AED; font-weight: 800; margin-bottom: 8px;">
+                            Prossimo sblocco
+                        </div>
+                        <div id="profile-progress-next" style="font-size: 15px; font-weight: 700; color: #1F2937; line-height: 1.5;">
+                            Ti mancano ancora {{ messages_to_unlock }} messaggi con Mya per completare la profilazione.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <!-- Radar Soft Skills -->
             <div class="engine-radar" style="position: relative;">
@@ -1254,15 +1280,17 @@
                             </svg>
                         </div>
                         <div style="text-align: center;">
-                            <div style="font-size: 18px; font-weight: 800; color: #1F2937;">In elaborazione</div>
-                            <div style="font-size: 14px; color: #6B7280; margin-top: 4px;">Completa la conversazione con
-                                Mya per sbloccare il tuo profilo.</div>
+                            <div id="profile-status-title" style="font-size: 18px; font-weight: 800; color: #1F2937;">
+                                Profilo al {{ profile_completion }}%
+                            </div>
+                            <div id="profile-status-copy" style="font-size: 14px; color: #6B7280; margin-top: 4px;">
+                                Continua la conversazione con Mya: ti mancano ancora {{ messages_to_unlock }} messaggi per sbloccare soft skill e match.
+                            </div>
                         </div>
-                        <!-- Barra di progresso basata su onboarding_step -->
                         <div
                             style="width: 100%; max-width: 250px; background: #f3f4f6; height: 8px; border-radius: 4px; margin-top: 8px; overflow: hidden;">
-                            <div
-                                style="height: 100%; background: linear-gradient(90deg, #7C3AED, #06b6d4); width: {{ (user.onboarding_step or 0) * 25 }}%;">
+                            <div id="profile-status-bar"
+                                style="height: 100%; background: linear-gradient(90deg, #7C3AED, #06b6d4); width: {{ profile_completion }}%;">
                             </div>
                         </div>
                         {% endif %}
@@ -1575,6 +1603,36 @@
             return div;
         }
 
+        function updateProfileProgress(progress, messagesLeft) {
+            const progressLabel = document.getElementById('profile-progress-label');
+            const progressCopy = document.getElementById('profile-progress-copy');
+            const progressBar = document.getElementById('profile-progress-bar');
+            const progressNext = document.getElementById('profile-progress-next');
+            const statusTitle = document.getElementById('profile-status-title');
+            const statusCopy = document.getElementById('profile-status-copy');
+            const statusBar = document.getElementById('profile-status-bar');
+
+            if (progressLabel) progressLabel.textContent = `Profilo al ${progress}%`;
+            if (progressCopy) {
+                progressCopy.textContent = progress >= 100
+                    ? 'Profilo completo: ora puoi vedere soft skill, match e suggerimenti personalizzati.'
+                    : 'Mya ti conosce ancora poco: continua a parlare con lei per sbloccare soft skill, match e suggerimenti personalizzati.';
+            }
+            if (progressBar) progressBar.style.width = `${progress}%`;
+            if (progressNext) {
+                progressNext.textContent = progress >= 100
+                    ? 'Tutte le funzioni del profilo sono sbloccate.'
+                    : `Ti mancano ancora ${messagesLeft} messaggi con Mya per completare la profilazione.`;
+            }
+            if (statusTitle) statusTitle.textContent = progress >= 100 ? 'Profilo completato' : `Profilo al ${progress}%`;
+            if (statusCopy) {
+                statusCopy.textContent = progress >= 100
+                    ? 'Mya ha raccolto abbastanza contesto per mostrarti soft skill e match.'
+                    : `Continua la conversazione con Mya: ti mancano ancora ${messagesLeft} messaggi per sbloccare soft skill e match.`;
+            }
+            if (statusBar) statusBar.style.width = `${progress}%`;
+        }
+
         async function sendMsgToAPI(text, goalKey = null) {
             if (!text && !goalKey) return;
 
@@ -1609,6 +1667,9 @@
                     if (data.messages && data.messages.length > 0) {
                         const lastMsg = data.messages[data.messages.length - 1];
                         appendBubble(lastMsg.text || lastMsg.content, false);
+                    }
+                    if (typeof data.profile_completion === 'number') {
+                        updateProfileProgress(data.profile_completion, data.messages_to_unlock || 0);
                     }
                 }
             } catch (e) {

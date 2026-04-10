@@ -28,8 +28,8 @@ def login():
             session['user_role']    = user.role
             session['profile_done'] = user.profile_done
 
-            if not user.profile_done and user.role == 'student':
-                return redirect(url_for('student.chat'))
+            if user.role == 'student':
+                return redirect(url_for('student.app_shell'))
             return _redirect_by_role(user.role)
         else:
             flash('Email o password non corretti.', 'error')
@@ -72,7 +72,7 @@ def register():
 
         flash(f'Benvenuto/a {name}! Inizia a chattare con Mya.', 'success')
         if role == 'student':
-            return redirect(url_for('student.chat'))
+            return redirect(url_for('student.app_shell'))
         return _redirect_by_role(role)
 
     return render_template('auth/register.html')

@@ -152,6 +152,42 @@ def _fallback_reply(user, text='') -> str:
     return random.choice(fallbacks)
 
 
+PROFILE_FREE_CHAT_TARGET = 6
+
+
+def _user_message_count(user):
+    return len([m for m in user.chat_history if m.get('role') == 'user'])
+
+
+def _free_chat_message_count(user):
+    # I primi 3 messaggi utente sono: eta, formazione, obiettivo.
+    return max(0, _user_message_count(user) - 3)
+
+
+def _profile_completion(user):
+    profile = user.skills_profile or {}
+    if user.profile_done and profile.get('skills') and profile.get('matches'):
+        return 100
+
+    completion = 0
+    if user.age:
+        completion += 10
+    if user.education:
+        completion += 15
+    if user.goal:
+        completion += 15
+
+    completion += min(60, _free_chat_message_count(user) * 10)
+    return min(100, completion)
+
+
+def _messages_to_unlock(user):
+    progress_left = max(0, 100 - _profile_completion(user))
+    if progress_left == 0:
+        return 0
+    return (progress_left + 9) // 10
+
+
 # ── Aggiornamento skills tramite AI ──────────────────────────────────────────
 def _analyze_skills_with_ai(user) -> dict | None:
     """Usa l'AI per estrarre le skill dall'intera conversazione."""
@@ -324,7 +360,9 @@ def app_shell():
         'student/app.html', 
         user=user,
         messages=user.chat_history,
-        onboarding_step=user.onboarding_step or 0
+        onboarding_step=user.onboarding_step or 0,
+        profile_completion=_profile_completion(user),
+        messages_to_unlock=_messages_to_unlock(user),
     )
 
 
@@ -349,6 +387,9 @@ def api_dashboard():
         'matches': profile.get('matches', []),
         'goal': user.goal,
         'name': user.name,
+        'profile_done': user.profile_done,
+        'profile_completion': _profile_completion(user),
+        'messages_to_unlock': _messages_to_unlock(user),
     })
 
 
@@ -379,6 +420,8 @@ def chat():
         onboarding_step=user.onboarding_step or 0,
         goal_labels=GOAL_LABELS,
         gemini_active=_get_ai_client() is not None,
+        profile_completion=_profile_completion(user),
+        messages_to_unlock=_messages_to_unlock(user),
     )
 
 
@@ -400,15 +443,17 @@ def api_chat():
         _append_message(
             user, 'mya',
             "Perfetto, ho salvato il tuo obiettivo. "
-            "Ho abbastanza elementi per proporti un profilo iniziale: trovi soft skills e match nella dashboard. "
-            "Da qui in poi resto disponibile: puoi scrivermi quando vuoi, anche solo per riflettere sul tuo percorso.",
+            "Adesso il tuo profilo e solo all'inizio: per sbloccare soft skill e match devo conoscerti meglio. "
+            "Continua a parlare con me e il tuo livello di profilazione salira messaggio dopo messaggio.",
         )
-        _finalize_profile(user)
+        user.onboarding_step = 4
         db.session.commit()
         return jsonify({
             'messages': user.chat_history,
-            'profile_done': True,
+            'profile_done': user.profile_done,
             'onboarding_step': user.onboarding_step,
+            'profile_completion': _profile_completion(user),
+            'messages_to_unlock': _messages_to_unlock(user),
         })
 
     if not text:
@@ -417,17 +462,26 @@ def api_chat():
     step = user.onboarding_step or 0
 
     # ── Fase libera con Gemini ────────────────────────────────────────────────
-    if user.profile_done and step >= 4:
+    if step >= 4:
         _append_message(user, 'user', text)
         mya_reply = _call_ai(user, text)
         _append_message(user, 'mya', mya_reply)
-        profile_updated = _update_skills_after_chat(user)
+
+        profile_updated = False
+        if not user.profile_done and _profile_completion(user) >= 100:
+            _finalize_profile(user)
+            profile_updated = True
+        elif user.profile_done:
+            profile_updated = _update_skills_after_chat(user)
+
         db.session.commit()
         return jsonify({
             'messages': user.chat_history,
-            'profile_done': True,
-            'onboarding_step': 4,
+            'profile_done': user.profile_done,
+            'onboarding_step': user.onboarding_step or 4,
             'profile_updated': profile_updated,
+            'profile_completion': _profile_completion(user),
+            'messages_to_unlock': _messages_to_unlock(user),
             'skills': user.skills_profile.get('skills', {}),
             'matches': user.skills_profile.get('matches', []),
         })
@@ -471,4 +525,6 @@ def api_chat():
         'messages': user.chat_history,
         'profile_done': user.profile_done,
         'onboarding_step': user.onboarding_step,
+        'profile_completion': _profile_completion(user),
+        'messages_to_unlock': _messages_to_unlock(user),
     })
