@@ -217,7 +217,7 @@
 
     <script>
         function startJourney() {
-            fetch('/api/welcome/complete', {
+            fetch("{{ url_for('student.welcome_complete') }}", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -226,13 +226,13 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = '/app';
+                    window.location.href = "{{ url_for('student.app_shell') }}";
                 } else {
-                    window.location.href = '/app';
+                    window.location.href = "{{ url_for('student.app_shell') }}";
                 }
             })
             .catch(error => {
-                window.location.href = '/app';
+                window.location.href = "{{ url_for('student.app_shell') }}";
             });
         }
     </script>
