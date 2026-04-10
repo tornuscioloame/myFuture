@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benvenuto su myFuture</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .welcome-container {
+            background: white;
+            border-radius: 32px;
+            padding: 48px;
+            max-width: 560px;
+            width: 100%;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
+            animation: fadeSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mya-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7C3AED, #9333EA);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 900;
+            font-size: 40px;
+            margin: 0 auto 24px auto;
+            box-shadow: 0 10px 40px rgba(124, 58, 237, 0.4);
+            animation: pulse-glow 2s infinite;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% {
+                box-shadow: 0 10px 40px rgba(124, 58, 237, 0.4);
+            }
+            50% {
+                box-shadow: 0 10px 60px rgba(124, 58, 237, 0.6);
+            }
+        }
+
+        .welcome-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #1F2937;
+            text-align: center;
+            margin-bottom: 8px;
+        }
+
+        .welcome-subtitle {
+            font-size: 16px;
+            color: #6B7280;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .intro-message {
+            background: linear-gradient(135deg, #F3E8FF, #EFF6FF);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 32px;
+            border: 1px solid rgba(124, 58, 237, 0.15);
+        }
+
+        .intro-message p {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #374151;
+            margin-bottom: 12px;
+        }
+
+        .intro-message p:last-child {
+            margin-bottom: 0;
+        }
+
+        .intro-message strong {
+            color: #7C3AED;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #4B5563;
+        }
+
+        .feature-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #7C3AED, #9333EA);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .cta-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #7C3AED, #9333EA);
+            color: white;
+            padding: 16px 32px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-skip {
+            background: transparent;
+            color: #6B7280;
+            padding: 12px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .btn-skip:hover {
+            color: #7C3AED;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="welcome-container">
+        <div class="mya-avatar-large">M</div>
+        
+        <h1 class="welcome-title">Ciao, sono Mya!</h1>
+        <p class="welcome-subtitle">La tua assistente per il futuro</p>
+        
+        <div class="intro-message">
+            <p><strong>Ciao{% if user and user.name %}, {{ user.name.split()[0] }}{% endif %}!</strong> Sono Mya, l'assistente IA di myFuture.</p>
+            <p>Il mio compito è aiutarti a capire quale direzione prendere per il tuo futuro: università, magistrale, o lavoro.</p>
+            <p>Come funziona? Semplice: <strong>parliamo insieme</strong>, come due amici al bar. Tu mi racconti cosa ti piace, come ti vedi lavorando, e io ti aiuto a fare chiarezza.</p>
+        </div>
+
+        <div class="features">
+            <div class="feature-item">
+                <div class="feature-icon">💬</div>
+                <span>Niente quiz noiosi, solo chiacchierata</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🧩</div>
+                <span>Scopri le tue soft skill uniche</span>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎯</div>
+                <span>Trova il percorso perfetto per te</span>
+            </div>
+        </div>
+
+        <div class="cta-buttons">
+            <button class="btn-start" onclick="startJourney()">🚀 Iniziamo!</button>
+        </div>
+    </div>
+
+    <script>
+        function startJourney() {
+            fetch('/api/welcome/complete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/app';
+                } else {
+                    window.location.href = '/app';
+                }
+            })
+            .catch(error => {
+                window.location.href = '/app';
+            });
+        }
+    </script>
+</body>
+
+</html>

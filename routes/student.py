@@ -257,6 +257,19 @@ def _ensure_chat_initialized(user):
         )
         db.session.commit()
         return
+    
+    # Se onboarding_step == 1, significa che l'utente ha già visto la pagina welcome
+    # Quindi non ripetiamo l'introduzione, ma passiamo direttamente alla conversazione
+    if (user.onboarding_step or 0) == 1:
+        first_question = (
+            "Bene, siamo in regata! ⛵ Allora dimmi: "
+            "quando pensi al tuo futuro, cosa ti emoziona di più? "
+            "Un percorso di studi, un lavoro in particolare, o hai ancora qualche dubbio?"
+        )
+        _append_message(user, 'mya', first_question)
+        db.session.commit()
+        return
+    
     welcome = (
         f"Ciao {first}! 👋 Sono Mya, l'assistente IA di myFuture. "
         "Il mio compito è aiutarti a scoprire quale direzione prendere per il tuo futuro: "
@@ -354,6 +367,10 @@ def app_shell():
     if user is None:
         session.clear()
         return redirect(url_for('auth.login'))
+    
+    # Se è la prima volta (onboarding_step == 0), mostra la pagina di welcome
+    if (user.onboarding_step or 0) == 0:
+        return render_template('student/welcome.html', user=user)
         
     if user.profile_done and (user.onboarding_step or 0) < 4:
         user.onboarding_step = 4
@@ -370,6 +387,23 @@ def app_shell():
         profile_completion=_profile_completion(user),
         messages_to_unlock=_messages_to_unlock(user),
     )
+
+
+@student_bp.route('/api/welcome/complete', methods=['POST'])
+@student_required
+def welcome_complete():
+    """Marca il welcome come completato e passa alla dashboard."""
+    user = _user()
+    if user is None:
+        return jsonify({'error': 'session'}), 401
+    
+    user.onboarding_step = 1
+    db.session.commit()
+    
+    _ensure_chat_initialized(user)
+    db.session.commit()
+    
+    return jsonify({'success': True})
 
 
 # ── DASHBOARD ─────────────────────────────────────────────────────────────────
