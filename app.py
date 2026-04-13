@@ -20,6 +20,10 @@ def _migrate_sqlite_columns():
             db.session.rollback()
 
 
+def _is_sqlite_database(uri: str) -> bool:
+    return (uri or '').startswith('sqlite:')
+
+
 def create_app():
     app = Flask(__name__)
 
@@ -34,8 +38,11 @@ def create_app():
 
     from models.user import User
     with app.app_context():
+        database_uri = app.config['SQLALCHEMY_DATABASE_URI']
+        print(f'[BOOT] Database in uso: {database_uri.split("?")[0]}')
         db.create_all()
-        _migrate_sqlite_columns()
+        if _is_sqlite_database(database_uri):
+            _migrate_sqlite_columns()
 
     from routes.auth import auth_bp
     from routes.student import student_bp
