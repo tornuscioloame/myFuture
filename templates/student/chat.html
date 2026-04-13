@@ -13,6 +13,7 @@
       <span class="chat-nav__tag">Chat con Mya</span>
     </div>
     <div class="chat-nav__actions">
+      <a href="{{ url_for('student.app_shell') }}" class="btn-nav-back">Torna all'app</a>
       {% if user.profile_done %}
       <a href="{{ url_for('student.dashboard') }}" class="btn-nav-dash" id="dashLink">La mia dashboard</a>
       {% endif %}
@@ -106,6 +107,18 @@
 
 <script>
 (function() {
+  function syncViewportHeight() {
+    const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+    document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
+  }
+
+  syncViewportHeight();
+  window.addEventListener('resize', syncViewportHeight);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', syncViewportHeight);
+    window.visualViewport.addEventListener('scroll', syncViewportHeight);
+  }
+
   const form = document.getElementById('chatForm');
   const input = document.getElementById('chatInput');
   const btnSend = document.getElementById('btnSend');
@@ -258,6 +271,10 @@
 
   scrollBottom();
   if (!input.disabled) input.focus();
+
+  input.addEventListener('focus', function() {
+    setTimeout(scrollBottom, 250);
+  });
 })();
 </script>
 {% endblock %}

@@ -26,7 +26,7 @@
             display: grid;
             grid-template-columns: 15% 1fr;
             transition: grid-template-columns 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-            height: 100vh;
+            height: var(--app-height, 100vh);
             overflow: hidden;
         }
 
@@ -110,7 +110,7 @@
             /* Gap ridotto per stringere i blocchi */
             overflow-y: auto;
             /* Sblocco scroll verticale centrato */
-            height: 100vh;
+            height: var(--app-height, 100vh);
         }
 
         .tab-content {
@@ -141,7 +141,9 @@
             flex-direction: column;
             padding: 24px 24px 32px 24px;
             gap: 16px;
-            height: 100vh;
+            height: var(--app-height, 100vh);
+            min-height: 0;
+            overflow: hidden;
             background: rgba(255, 255, 255, 0.65);
             backdrop-filter: blur(20px);
             border-left: none;
@@ -341,6 +343,17 @@
             /* Glow colorato (Viola chiaro diffuso) */
             border: none;
             /* No border solidi */
+        }
+
+        .brain-feed {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 20px;
+            scroll-behavior: smooth;
         }
 
         .engine-radar {
@@ -657,9 +670,20 @@
 
         /* Nuove Animazioni Chat e Dashboard */
         @keyframes chatBounceIn {
-            0% { opacity: 0; transform: translateY(15px) scale(0.95); }
-            60% { opacity: 1; transform: translateY(-3px) scale(1.02); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
+            0% {
+                opacity: 0;
+                transform: translateY(15px) scale(0.95);
+            }
+
+            60% {
+                opacity: 1;
+                transform: translateY(-3px) scale(1.02);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .chat-bubble {
@@ -677,12 +701,35 @@
         }
 
         @keyframes vibrateGlow {
-            0% { transform: translateX(0); box-shadow: 0 0 10px rgba(124, 58, 237, 0.2); }
-            20% { transform: translateX(-4px); box-shadow: 0 0 25px rgba(124, 58, 237, 0.6); }
-            40% { transform: translateX(4px); box-shadow: 0 0 25px rgba(124, 58, 237, 0.6); }
-            60% { transform: translateX(-4px); box-shadow: 0 0 25px rgba(124, 58, 237, 0.6); }
-            80% { transform: translateX(4px); box-shadow: 0 0 25px rgba(124, 58, 237, 0.6); }
-            100% { transform: translateX(0); box-shadow: 0 0 10px rgba(124, 58, 237, 0.2); }
+            0% {
+                transform: translateX(0);
+                box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+            }
+
+            20% {
+                transform: translateX(-4px);
+                box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+            }
+
+            40% {
+                transform: translateX(4px);
+                box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+            }
+
+            60% {
+                transform: translateX(-4px);
+                box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+            }
+
+            80% {
+                transform: translateX(4px);
+                box-shadow: 0 0 25px rgba(124, 58, 237, 0.6);
+            }
+
+            100% {
+                transform: translateX(0);
+                box-shadow: 0 0 10px rgba(124, 58, 237, 0.2);
+            }
         }
 
         .vibrate-glow {
@@ -708,12 +755,28 @@
             animation: typingBounce 1.4s infinite ease-in-out both;
         }
 
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
 
         @keyframes typingBounce {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+                box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+            }
         }
 
         .ai-bubble {
@@ -860,6 +923,96 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        @media (max-width: 900px) {
+            body {
+                display: block;
+                height: auto;
+                min-height: var(--app-height, 100vh);
+                overflow-x: hidden;
+                overflow-y: auto;
+            }
+
+            body.mya-open {
+                overflow: hidden;
+            }
+
+            .col-left {
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                padding: 18px 16px 12px;
+                background: rgba(245, 246, 251, 0.94);
+                backdrop-filter: blur(18px);
+            }
+
+            .app-logo {
+                margin-bottom: 16px;
+                padding-left: 0;
+            }
+
+            .menu-nav {
+                flex-direction: row;
+                gap: 10px;
+                overflow-x: auto;
+                padding-bottom: 4px;
+            }
+
+            .menu-link {
+                flex: 0 0 auto;
+                white-space: nowrap;
+            }
+
+            .menu-spacer,
+            .menu-logout {
+                display: none;
+            }
+
+            .col-center {
+                height: auto;
+                min-height: 0;
+                padding: 16px 16px 28px;
+                overflow: visible;
+            }
+
+            .col-right {
+                position: fixed;
+                inset: 0;
+                z-index: 1000;
+                padding: 12px 12px calc(12px + env(safe-area-inset-bottom, 0px));
+                height: var(--app-height, 100vh);
+                background: rgba(245, 246, 251, 0.98);
+            }
+
+            .brain-header,
+            .brain-feed {
+                border-radius: 20px;
+            }
+
+            .brain-header {
+                padding: 16px 18px;
+            }
+
+            .brain-feed {
+                padding: 16px;
+            }
+
+            .brain-input {
+                border-radius: 22px;
+                padding: 8px;
+            }
+
+            .chat-input {
+                min-width: 0;
+                font-size: 16px;
+                padding-left: 10px;
+            }
+
+            .fab-container {
+                right: 18px;
+                bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+            }
+        }
     </style>
 </head>
 
@@ -878,7 +1031,7 @@
                 </svg>
                 Dashboard
             </a>
-            <a href="{{ url_for('student.chat') }}" class="menu-link">
+            <a href="#" class="menu-link" id="nav-mya" onclick="openMyaPanel(this); return false;">
                 <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
@@ -943,23 +1096,31 @@
             {% if not user.profile_done %}
             <div class="engine-radar" style="padding: 22px 26px;">
                 <div class="engine-title">Stato del profilo</div>
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+                <div
+                    style="display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
                     <div style="display: flex; flex-direction: column; gap: 10px; min-width: 260px; flex: 1;">
                         <div id="profile-progress-label" style="font-size: 28px; font-weight: 800; color: #1F2937;">
                             Profilo al {{ profile_completion }}%
                         </div>
                         <div id="profile-progress-copy" style="font-size: 14.5px; line-height: 1.6; color: #6B7280;">
-                            Mya ti conosce ancora poco: continua a parlare con lei per sbloccare soft skill, match e suggerimenti personalizzati.
+                            Mya ti conosce ancora poco: continua a parlare con lei per sbloccare soft skill, match e
+                            suggerimenti personalizzati.
                         </div>
-                        <div style="width: 100%; max-width: 420px; background: #f3f4f6; height: 10px; border-radius: 999px; overflow: hidden;">
-                            <div id="profile-progress-bar" style="height: 100%; width: {{ profile_completion }}%; background: linear-gradient(90deg, #7C3AED, #06b6d4); border-radius: 999px; transition: width 0.35s ease;"></div>
+                        <div
+                            style="width: 100%; max-width: 420px; background: #f3f4f6; height: 10px; border-radius: 999px; overflow: hidden;">
+                            <div id="profile-progress-bar"
+                                style="height: 100%; width: {{ profile_completion }}%; background: linear-gradient(90deg, #7C3AED, #06b6d4); border-radius: 999px; transition: width 0.35s ease;">
+                            </div>
                         </div>
                     </div>
-                    <div style="min-width: 220px; padding: 18px 20px; border-radius: 20px; background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(6,182,212,0.08));">
-                        <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: #7C3AED; font-weight: 800; margin-bottom: 8px;">
+                    <div
+                        style="min-width: 220px; padding: 18px 20px; border-radius: 20px; background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(6,182,212,0.08));">
+                        <div
+                            style="font-size: 12px; text-transform: uppercase; letter-spacing: 1.2px; color: #7C3AED; font-weight: 800; margin-bottom: 8px;">
                             Prossimo sblocco
                         </div>
-                        <div id="profile-progress-next" style="font-size: 15px; font-weight: 700; color: #1F2937; line-height: 1.5;">
+                        <div id="profile-progress-next"
+                            style="font-size: 15px; font-weight: 700; color: #1F2937; line-height: 1.5;">
                             Ti mancano ancora {{ messages_to_unlock }} messaggi con Mya per completare la profilazione.
                         </div>
                     </div>
@@ -1328,7 +1489,8 @@
                                 Profilo al {{ profile_completion }}%
                             </div>
                             <div id="profile-status-copy" style="font-size: 14px; color: #6B7280; margin-top: 4px;">
-                                Continua la conversazione con Mya: ti mancano ancora {{ messages_to_unlock }} messaggi per sbloccare soft skill e match.
+                                Continua la conversazione con Mya: ti mancano ancora {{ messages_to_unlock }} messaggi
+                                per sbloccare soft skill e match.
                             </div>
                         </div>
                         <div
@@ -1499,6 +1661,36 @@
     </div>
 
     <script>
+        function syncViewportHeight() {
+            const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+            document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
+        }
+
+        syncViewportHeight();
+        window.addEventListener('resize', syncViewportHeight);
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', syncViewportHeight);
+            window.visualViewport.addEventListener('scroll', syncViewportHeight);
+        }
+
+        let lastTabLinkId = 'nav-dashboard';
+
+        function updateNavState(activeId = null) {
+            document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
+            if (!activeId) return;
+            const activeLink = document.getElementById(activeId);
+            if (activeLink) activeLink.classList.add('active');
+        }
+
+        function setMyaOpen(isOpen) {
+            document.body.classList.toggle('mya-open', isOpen);
+            updateNavState(isOpen ? 'nav-mya' : lastTabLinkId);
+            scrollToBottom();
+
+            if (isOpen) {
+                setTimeout(() => inputField.focus(), 350);
+            }
+        }
         let skillChartInstance = null;
 
         function getSkillComment(skill, score) {
@@ -1594,27 +1786,27 @@
 
     <script>
         function switchTab(tabId, element) {
-            if (element) {
-                document.querySelectorAll('.menu-link').forEach(link => link.classList.remove('active'));
-                element.classList.add('active');
+            setMyaOpen(false);
+            if (element && element.id) {
+                lastTabLinkId = element.id;
+                updateNavState(element.id);
             }
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.getElementById('tab-' + tabId).classList.add('active');
         }
 
+        function openMyaPanel(element = null) {
+            setMyaOpen(true);
+            if (element && element.id) updateNavState(element.id);
+        }
+
         function askMyaAbout(topic) {
-            document.body.classList.add('mya-open');
+            setMyaOpen(true);
             sendMsgToAPI("Vorrei scoprire di più su: " + topic);
         }
 
         function toggleMya() {
-            document.body.classList.toggle('mya-open');
-            scrollToBottom();
-
-            // Focus automatico sull'input se stiamo aprendo
-            if (document.body.classList.contains('mya-open')) {
-                setTimeout(() => inputField.focus(), 350);
-            }
+            setMyaOpen(!document.body.classList.contains('mya-open'));
         }
         const wasProfileDone = JSON.parse("{{ 'true' if user.profile_done else 'false' }}");
         const chatFeed = document.getElementById('chat-feed');
@@ -1622,7 +1814,9 @@
         const submitBtn = document.getElementById('mya-submit');
 
         function scrollToBottom() {
-            chatFeed.scrollTop = chatFeed.scrollHeight;
+            requestAnimationFrame(() => {
+                chatFeed.scrollTop = chatFeed.scrollHeight;
+            });
         }
         setTimeout(scrollToBottom, 500);
 
@@ -1635,7 +1829,7 @@
 
         // Se l'utente non ha profilato o inizia da 0, Mya compare aperta di base!
         if (!wasProfileDone) {
-            document.body.classList.add('mya-open');
+            setMyaOpen(true);
         }
 
         function appendBubble(html, isUser = true) {
@@ -1744,6 +1938,10 @@
 
         submitBtn.addEventListener('click', function () {
             sendMsgToAPI(inputField.value.trim());
+        });
+
+        inputField.addEventListener('focus', function () {
+            setTimeout(scrollToBottom, 250);
         });
     </script>
 </body>

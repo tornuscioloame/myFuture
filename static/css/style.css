@@ -1525,7 +1525,7 @@ input:focus {
 }
 
 .chat-layout {
-  min-height: 100vh;
+  min-height: var(--app-height, 100vh);
   display: flex;
   flex-direction: column;
   background: var(--bg-dark);
@@ -1577,6 +1577,24 @@ input:focus {
   border-radius: var(--radius-sm);
   text-decoration: none;
   transition: box-shadow .2s;
+}
+
+.btn-nav-back {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.85);
+  padding: .5rem 1rem;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  transition: background .2s, box-shadow .2s;
+}
+
+.btn-nav-back:hover {
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+  color: var(--text-primary);
 }
 
 .btn-nav-dash:hover {
@@ -1684,8 +1702,8 @@ input:focus {
 .chat-panel {
   display: flex;
   flex-direction: column;
-  min-height: calc(100vh - 64px);
-  max-height: calc(100vh - 64px);
+  min-height: calc(var(--app-height, 100vh) - 64px);
+  max-height: calc(var(--app-height, 100vh) - 64px);
   background: var(--bg-dark);
 }
 
@@ -2131,7 +2149,30 @@ input:focus {
     grid-template-columns: 1fr;
   }
 
+  .chat-layout {
+    min-height: var(--app-height, 100vh);
+  }
+
+  .chat-nav {
+    padding: .9rem 1rem;
+    gap: .75rem;
+  }
+
+  .chat-nav__actions {
+    width: 100%;
+    gap: .5rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-nav-back,
+  .btn-nav-dash,
+  .nav-exit {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+
   .chat-aside {
+    padding: 1rem;
     border-right: none;
     border-bottom: 1px solid var(--border);
   }
@@ -2141,7 +2182,36 @@ input:focus {
   }
 
   .chat-panel {
+    min-height: calc(var(--app-height, 100vh) - 190px);
     max-height: none;
-    min-height: 70vh;
+  }
+
+  .chat-messages {
+    padding: 1rem;
+  }
+
+  .chat-bubble {
+    max-width: 100%;
+  }
+
+  .chat-compose {
+    position: sticky;
+    bottom: 0;
+    padding: .85rem 1rem calc(.85rem + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(14px);
+  }
+
+  .chat-compose__input {
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .chat-compose__send {
+    min-height: 48px;
+  }
+
+  .chat-quick-replies {
+    padding: 0 1rem 1rem;
   }
 }
