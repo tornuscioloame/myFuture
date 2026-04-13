@@ -52,7 +52,7 @@ body {
   font-family: var(--font-body);
   background: var(--bg-dark);
   color: var(--text-primary);
-  min-height: 100vh;
+  min-height: var(--app-height, 100vh);
   overflow-x: hidden;
 }
 
@@ -127,7 +127,7 @@ a:hover {
 .auth-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
+  min-height: var(--app-height, 100vh);
 }
 
 /* ── Brand Panel (left) ──────────────────────────────────── */
@@ -657,7 +657,7 @@ input:focus {
    INTERVIEW LAYOUT
 ══════════════════════════════════════════════════════════ */
 .interview-layout {
-  min-height: 100vh;
+  min-height: var(--app-height, 100vh);
   display: flex;
   flex-direction: column;
   background:
@@ -1120,7 +1120,7 @@ input:focus {
 .dashboard-layout {
   display: grid;
   grid-template-columns: 250px 1fr;
-  min-height: 100vh;
+  min-height: var(--app-height, 100vh);
 }
 
 /* Sidebar */
@@ -1135,7 +1135,7 @@ input:focus {
   gap: 2rem;
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: var(--app-height, 100vh);
   overflow-y: auto;
   box-shadow: 4px 0 32px rgba(20, 18, 42, 0.05);
   z-index: 10;
@@ -2143,6 +2143,92 @@ input:focus {
   .sidebar {
     position: static;
     height: auto;
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .sidebar-user {
+    display: none;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    flex: 0 0 auto;
+    padding-bottom: .25rem;
+  }
+
+  .nav-item {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .sidebar-live {
+    align-self: flex-start;
+  }
+
+  .dashboard-main {
+    padding: 1.25rem 1rem 2rem;
+  }
+
+  .dash-header {
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .dash-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .dash-badge {
+    align-self: flex-start;
+  }
+
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .match-card {
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.2rem;
+  }
+
+  .match-info {
+    width: 100%;
+  }
+
+  .match-info h3 {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: initial;
+  }
+
+  .btn-unlock {
+    width: 100%;
+    text-align: center;
+  }
+
+  .dash-cta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .btn-secondary {
+    width: 100%;
+    text-align: center;
+  }
+
+  .flash-container {
+    left: 1rem;
+    right: 1rem;
+    top: .75rem;
+  }
+
+  .flash {
+    max-width: none;
   }
 
   .chat-main {

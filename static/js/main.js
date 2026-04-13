@@ -2,6 +2,8 @@
 // Piccole utility generali usate in tutte le pagine
 
 document.addEventListener('DOMContentLoaded', () => {
+  syncViewportHeight();
+
   // Auto-rimuovi flash messages dopo 4 secondi
   document.querySelectorAll('.flash').forEach(el => {
     setTimeout(() => el.remove(), 4000);
@@ -10,6 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Animazione anelli match (dashboard)
   animateMatchRings();
 });
+
+window.addEventListener('resize', syncViewportHeight);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', syncViewportHeight);
+  window.visualViewport.addEventListener('scroll', syncViewportHeight);
+}
+
+function syncViewportHeight() {
+  const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  document.documentElement.style.setProperty('--app-height', `${viewportHeight}px`);
+}
 
 function animateMatchRings() {
   const rings = document.querySelectorAll('.ring-fill');
