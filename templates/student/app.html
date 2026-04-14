@@ -1031,7 +1031,7 @@
                 </svg>
                 Dashboard
             </a>
-            <a href="#" class="menu-link" id="nav-mya" onclick="openMyaPanel(this); return false;">
+            <a href="{{ url_for('student.chat') }}" class="menu-link" id="nav-mya" target="_blank">
                 <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
@@ -1828,7 +1828,9 @@
         }, 150);
 
         // Se l'utente non ha profilato o inizia da 0, Mya compare aperta di base!
-        if (!wasProfileDone) {
+        // Oppure se è arrivato dalla chat (mya_fullscreen=true)
+        const myaFullscreen = JSON.parse("{{ 'true' if mya_fullscreen else 'false' }}");
+        if (!wasProfileDone || myaFullscreen) {
             setMyaOpen(true);
         }
 

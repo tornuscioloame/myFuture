@@ -281,14 +281,14 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.success) {
-                    window.location.href = "{{ url_for('student.app_shell') }}";
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
                 } else {
-                    window.location.href = "{{ url_for('student.app_shell') }}";
+                    window.location.href = "{{ url_for('student.chat') }}";
                 }
             })
             .catch(error => {
-                window.location.href = "{{ url_for('student.app_shell') }}";
+                window.location.href = "{{ url_for('student.chat') }}";
             });
         }
     </script>

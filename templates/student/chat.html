@@ -128,6 +128,7 @@
   const profileToast = document.getElementById('profileToast');
   let onboardingStep = {{ (onboarding_step or 0) | int }};
   let profileDone = {{ user.profile_done | tojson }};
+  const wasProfileDone = {{ user.profile_done | tojson }};
 
   // Mappa skill → indice per aggiornare i mini-bar
   const skillIndexMap = {};
@@ -222,6 +223,12 @@
     if (data.profile_updated && data.skills) {
       updateAsideSkills(data.skills);
       showToast();
+    }
+    // Redirect to dashboard when profile is completed from welcome flow
+    if (data.profile_done && !wasProfileDone) {
+      setTimeout(function() {
+        window.location.href = "{{ url_for('student.dashboard') }}";
+      }, 2000);
     }
   }
 

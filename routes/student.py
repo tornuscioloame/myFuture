@@ -253,6 +253,19 @@ def _ensure_chat_initialized(user):
     if user.profile_done and (user.onboarding_step or 0) < 5:
         user.onboarding_step = 5
     if user.chat_history:
+        # Se è la prima volta che entra nella dashboard dopo il profilo completato, mostra il tutorial
+        if user.profile_done and (user.onboarding_step or 0) == 5 and len(user.chat_history) > 0:
+            tutorial_msg = (
+                "Benvenuto nella tua dashboard! 🎉 Qui trovi tutto quello che ti serve: "
+                "le tue soft skill analizzate, i match con università o lavoro, e le opportunità selezionate per te. "
+                "Scorri le sezioni per esplorare. Se hai dubbi, sono qui! Scrivi pure."
+            )
+            # Controlla se il tutorial non è già stato mostrato
+            has_tutorial = any('Benvenuto nella tua dashboard' in m.get('text', '') for m in user.chat_history if m.get('role') == 'mya')
+            if not has_tutorial:
+                _append_message(user, 'mya', tutorial_msg)
+                user.onboarding_step = 6
+                db.session.commit()
         return
     first = _mya_welcome_first_name()
     if user.profile_done:
@@ -393,23 +406,6 @@ def app_shell():
         profile_completion=_profile_completion(user),
         messages_to_unlock=_messages_to_unlock(user),
     )
-
-
-@student_bp.route('/api/welcome/complete', methods=['POST'])
-@student_required
-def welcome_complete():
-    """Marca il welcome come completato e passa alla dashboard."""
-    user = _user()
-    if user is None:
-        return jsonify({'error': 'session'}), 401
-    
-    user.onboarding_step = 1
-    db.session.commit()
-    
-    _ensure_chat_initialized(user)
-    db.session.commit()
-    
-    return jsonify({'success': True})
 
 
 # ── DASHBOARD ─────────────────────────────────────────────────────────────────
