@@ -34,6 +34,25 @@
             grid-template-columns: 15% 1fr 28%;
         }
 
+        body.mya-fullscreen {
+            grid-template-columns: 0 1fr 0;
+        }
+
+        body.mya-fullscreen .col-left,
+        body.mya-fullscreen .col-center {
+            display: none;
+        }
+
+        body.mya-fullscreen .col-right {
+            display: flex;
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            background: #f5f6fb;
+        }
+
         /* ----------------------------------------------------
            COLONNE GLOBALI 
            Niente bordi rigidi, fluidità totale
@@ -1031,7 +1050,7 @@
                 </svg>
                 Dashboard
             </a>
-            <a href="{{ url_for('student.chat') }}" class="menu-link" id="nav-mya" target="_blank">
+            <a href="#" class="menu-link" id="nav-mya" onclick="openMyaFullscreen(); return false;">
                 <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                 </svg>
@@ -1567,7 +1586,7 @@
                     Online - In ascolto
                 </div>
             </div>
-            <button class="mya-close-btn" onclick="toggleMya()">×</button>
+            <button class="mya-close-btn" onclick="document.body.classList.contains('mya-fullscreen') ? closeMyaFullscreen() : toggleMya()">×</button>
         </div>
 
         <!-- 2. Feed Conversazionale (Proattività IA) -->
@@ -1805,8 +1824,26 @@
             sendMsgToAPI("Vorrei scoprire di più su: " + topic);
         }
 
-        function toggleMya() {
-            setMyaOpen(!document.body.classList.contains('mya-open'));
+function toggleMya() {
+            const isFullscreen = document.body.classList.contains('mya-fullscreen');
+            if (isFullscreen) {
+                document.body.classList.remove('mya-fullscreen');
+                setMyaOpen(false);
+            } else {
+                document.body.classList.add('mya-open');
+                setMyaOpen(true);
+            }
+        }
+
+        function openMyaFullscreen() {
+            document.body.classList.remove('mya-open');
+            document.body.classList.add('mya-fullscreen');
+            scrollToBottom();
+            setTimeout(() => inputField.focus(), 350);
+        }
+
+        function closeMyaFullscreen() {
+            document.body.classList.remove('mya-fullscreen');
         }
         const wasProfileDone = JSON.parse("{{ 'true' if user.profile_done else 'false' }}");
         const chatFeed = document.getElementById('chat-feed');
