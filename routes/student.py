@@ -241,7 +241,10 @@ Rispondi ESCLUSIVAMENTE con un JSON valido in questo formato (senza markdown, se
             skills[k] = max(30, min(99, int(v)))
         return skills
     except Exception as e:
+        err_msg = str(e).lower()
         print(f'[AI skill analysis error] {e}')
+        if 'image' in err_msg or 'vision' in err_msg:
+            return None
         return None
 
 
