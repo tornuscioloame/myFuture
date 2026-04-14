@@ -135,7 +135,10 @@ def _call_ai(user, user_text: str) -> str:
         print(f'[AI] risposta ok: {reply[:80]!r}')
         return reply
     except Exception as e:
+        err_msg = str(e).lower()
         print(f'[AI ERROR] {type(e).__name__}: {e}')
+        if 'image' in err_msg or 'vision' in err_msg:
+            return _fallback_reply(user, user_text)
         return _fallback_reply(user, user_text)
 
 
